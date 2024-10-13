@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\Contact;
 class ContactController extends Controller
 {
     /**
@@ -11,7 +11,8 @@ class ContactController extends Controller
      */
     public function index()
     {
-        return view('contact', ['title' => 'MyProfile-Zamzam-Contact']);
+        $contacts = Contact::latest()->paginate(10);
+        return view('Contact.index', ['title' => 'MyProfile-Zamzam-Contact-Admin'], compact('contacts'));
     }
 
     /**
@@ -19,7 +20,7 @@ class ContactController extends Controller
      */
     public function create()
     {
-        //
+        return view('Contact.create', ['title' => 'MyProfile-Zamzam-Contact']);
     }
 
     /**
@@ -27,7 +28,19 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama' => 'required|min:2',
+            'email' => 'required|min:10',
+            'pesan' => 'required|min:5'
+        ]);
+
+        Contact::create([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'pesan' => $request->pesan
+        ]);
+
+        return redirect()->route('Contact.create')->with(['success' => 'Pesan Berhasil Di Kirim']);
     }
 
     /**
@@ -59,6 +72,9 @@ class ContactController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $contact = Contact::findOrFail($id);
+        $contact->delete();
+
+        return redirect()->route('Contact.index')->with(['success' => 'Data Berhasil Di Hapus']);
     }
 }

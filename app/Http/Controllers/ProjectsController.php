@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Project;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectsController extends Controller
 {
@@ -11,19 +13,14 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        return view('projects', [
-            'title' => 'MyProfile-Zamzam-Projects',
-            'posts' => [
-                [
-                    'id' => '1',
-                    'image' => 'images/samurai.jpg',
-                    'url-project' => '/Game-Samurai',
-                    'date' => '21 Sep 2024',
-                    'title' => 'Game Samurai',
-                    'description' => 'Masuki dunia samurai yang penuh aksi dalam "Samurai Duel," sebuah pertarungan satu lawan satu yang intens dan mendebarkan. Dalam duel ini, dua pemain akan bertarung dalam arena yang berisi rintangan dan latar yang memukau, dengan tujuan utama untuk mengalahkan lawan dalam waktu 60 detik. Pilih karakter samurai yang unik, masing-masing dengan kemampuan khusus dan senjata ikonik. Pertarungan dimulai dengan ketegangan tinggi, di mana strategi, refleks, dan kecepatan menjadi kunci untuk meraih kemenangan. Gunakan serangan cepat dan kombinasi yang mematikan untuk menjatuhkan lawan atau memanfaatkan rintangan untuk bersembunyi dan merencanakan serangan balik. Setiap detik sangat berharga, dan pemain harus berhati-hati untuk menghindari serangan lawan sambil mencari kesempatan untuk memberikan serangan fatal. Siapakah yang akan keluar sebagai pemenang dalam duel epik ini? Hanya waktu yang akan menjawab. Bergabunglah dalam "Samurai Duel" dan buktikan siapa yang layak menjadi samurai terhebat!',
-                ],
-            ]
-        ]);
+        $projects = Project::latest()->paginate(10);
+        return view('Projects.index', ['title' => 'MyProfile-Zamzam-Projects', 'projects' => $projects], compact('projects'));
+    }
+
+    public function users()
+    {
+        $projects = Project::latest()->paginate(10);
+        return view('Projects.projects', ['title' => 'MyProfile-Zamzam-Projects', 'projects' => $projects]);
     }
 
     /**
@@ -31,7 +28,7 @@ class ProjectsController extends Controller
      */
     public function create()
     {
-        // Implementasi untuk menampilkan form pembuatan proyek
+        return view('Projects.create', ['title' => 'MyProfile-Zamzam-Projects-Create']);
     }
 
     /**
@@ -39,7 +36,26 @@ class ProjectsController extends Controller
      */
     public function store(Request $request)
     {
-        // Implementasi untuk menyimpan proyek baru
+        $request->validate([
+            'image' => 'required|mimes:png,jpg,jpeg|max:2048',
+            'url_project' => 'nullable|min:3',
+            'date' => 'required|date',
+            'title' => 'required|min:5',
+            'description' => 'required|min:10',
+        ]);
+
+        $image = $request->file('image');
+        $image->storeAs('public/projects', $image->hashName());
+
+        Project::create([
+            'image' => $image->hashName(),
+            'url_project' => $request->url_project ?? '#',
+            'date' => $request->date,
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('Projects.index')->with(['success' => 'Data Berhasil Disimpan']);
     }
 
     /**
@@ -47,26 +63,8 @@ class ProjectsController extends Controller
      */
     public function show(string $id)
     {
-
-        $posts = [
-            [
-                'id' => '1',
-                'image' => 'images/samurai.jpg',
-                'url-project' => '/Game-Samurai',
-                'date' => '21 Sep 2024',
-                'title' => 'Game Samurai',
-                'description' => 'Masuki dunia samurai yang penuh aksi dalam "Samurai Duel," sebuah pertarungan satu lawan satu yang intens dan mendebarkan. Dalam duel ini, dua pemain akan bertarung dalam arena yang berisi rintangan dan latar yang memukau, dengan tujuan utama untuk mengalahkan lawan dalam waktu 60 detik. Pilih karakter samurai yang unik, masing-masing dengan kemampuan khusus dan senjata ikonik. Pertarungan dimulai dengan ketegangan tinggi, di mana strategi, refleks, dan kecepatan menjadi kunci untuk meraih kemenangan. Gunakan serangan cepat dan kombinasi yang mematikan untuk menjatuhkan lawan atau memanfaatkan rintangan untuk bersembunyi dan merencanakan serangan balik. Setiap detik sangat berharga, dan pemain harus berhati-hati untuk menghindari serangan lawan sambil mencari kesempatan untuk memberikan serangan fatal. Siapakah yang akan keluar sebagai pemenang dalam duel epik ini? Hanya waktu yang akan menjawab. Bergabunglah dalam "Samurai Duel" dan buktikan siapa yang layak menjadi samurai terhebat!',
-            ],
-        ];
-
-        $post = collect($posts)->firstWhere('id', $id);
-
-        if ($post) {
-            session(['post' => $post]);
-            return redirect('/Post');
-        }
-
-        return redirect('/Projects')->with('error', 'Post not found.');
+        $project = Project::findOrFail($id);
+        return view('Projects.show', ['title' => 'MyProfile-Zamzam-Project'], compact('project'));
     }
 
     /**
@@ -74,7 +72,8 @@ class ProjectsController extends Controller
      */
     public function edit(string $id)
     {
-        // Implementasi untuk menampilkan form edit proyek
+        $project = Project::findOrFail($id);
+        return view('Projects.edit', ['title' => 'MyProfile-Zamzam-Projects-Edit'], compact('project'));
     }
 
     /**
@@ -82,7 +81,39 @@ class ProjectsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Implementasi untuk memperbarui proyek yang ada
+        $request->validate([
+            'image' => 'image|mimes:png,jpg,jpeg|max:2048',
+            'url_project' => 'nullable|min:0',
+            'date' => 'required|date',
+            'title' => 'required|min:5',
+            'description' => 'required|min:10',
+        ]);
+
+        $project = Project::findOrFail($id);
+
+        if ($request->hasFile('image')) {
+
+            $image = $request->file('image');
+            $image->storeAs('public/projects', $image->hashName());
+            
+            Storage::delete('public/projects/'.$project->image);
+
+            $project->update([
+                'image' => $image->hashName(),
+                'url_project' => $request->url_project ?? '#',
+                'date' => $request->date,
+                'title' => $request->title,
+                'description' => $request->description,
+            ]);
+        } else {
+            $project->update([
+                'url_project' => $request->url_project ?? '#',
+                'date' => $request->date,
+                'title' => $request->title,
+                'description' => $request->description,
+            ]);
+        }
+        return redirect()->route('Projects.index')->with(['success' => 'Data Berhasil Diubah!']);
     }
 
     /**
@@ -90,6 +121,10 @@ class ProjectsController extends Controller
      */
     public function destroy(string $id)
     {
-        // Implementasi untuk menghapus proyek
+        $project = Project::findOrFail($id);
+        Storage::delete('public/projects/'.$project->image);
+        $project->delete();
+        return redirect()->route('Projects.index')->with(['success' => 'Data Berhasil Dihapus!']);
     }
+
 }

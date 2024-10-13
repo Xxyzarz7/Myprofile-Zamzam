@@ -1,4 +1,4 @@
-@extends('yield/layout')
+@extends('yield/user/layout')
 
 @section('body')
     {{-- Body Section --}}
@@ -9,7 +9,7 @@
                     <div class="img-about img d-flex align-items-stretch">
                         <div class="overlay"></div>
                         <div class="img d-flex align-self-stretch align-items-center"
-                             style="background-image:url(images/profiljpg);">
+                             style="background-image:url(images/profil.jpg);">
                         </div>
                     </div>
                 </div>

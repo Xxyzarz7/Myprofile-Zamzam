@@ -1,4 +1,4 @@
-@extends('yield/layout')
+@extends('yield/user/layout')
 
 @section('body')
     {{-- Body Section --}}
@@ -13,21 +13,37 @@
             {{-- Form Pesan --}}
             <div class="row block-9">
                 <div class="col-md-8">
-                    <form action="#" class="bg-light p-4 p-md-5 contact-form">
+                    <form action="{{ route('Contact.store') }}" class="bg-light p-4 p-md-5 contact-form" method="POST">
+                        @csrf
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Nama">
+                                    <input type="text" class="form-control @error('nama') is-invalid @enderror" placeholder="Nama" name="nama" value="{{ old('nama') }}">
+                                    @error('nama')
+                                        <div class="alert alert-danger mt-2">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <input type="email" class="form-control" placeholder="Email">
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email" name="email" value="{{ old('email') }}">
+                                    @error('email')
+                                        <div class="alert alert-danger mt-2">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <textarea name="" id="" cols="30" rows="7" class="form-control" placeholder="Pesan"></textarea>
+                                    <textarea name="pesan" id="" cols="30" rows="7" class="form-control @error('pesan') is-invalid @enderror" placeholder="Pesan" value="{{ old('pesan') }}"></textarea>
+                                    @error('pesan')
+                                        <div class="alert alert-danger mt-2">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-12">

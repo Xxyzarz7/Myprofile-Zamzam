@@ -10,9 +10,9 @@
             <ul class="navbar-nav nav ml-auto">
                 <li class="nav-item"><a href="/" class="nav-link"><span>Home</span></a></li>
                 <li class="nav-item"><a href="/About" class="nav-link"><span>About</span></a></li>
-                <li class="nav-item"><a href="/Projects" class="nav-link"><span>Projects</span></a></li>
-                <li class="nav-item"><a href="/Contact" class="nav-link"><span>Contact</span></a></li>
-                <li class="nav-item"><div class="form-group"><input type="submit" value="Login" class="btn btn-primary py-2 px-4"></div></li>
+                <li class="nav-item"><a href="/projects-Users" class="nav-link"><span>Projects</span></a></li>
+                <li class="nav-item"><a href="{{ route('Contact.create') }}" class="nav-link"><span>Contact</span></a></li>
+                <a href="{{ route('Projects.index') }}"><li class="nav-item"><div class="form-group"><input type="submit" value="Login" class="btn btn-primary py-2 px-4"></div></li></a>
             </ul>
         </div>
     </div>

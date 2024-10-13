@@ -5,7 +5,7 @@
                 <div class="ftco-footer-widget mb-4">
                     <h2 class="ftco-heading-2">My About</h2>
                     <p>Nama Saya Muhammad Zamzam Hidayattullah, Saya Lahir Di Bandung 26 Mei 2007, Saat Ini Saya Sekolah Di SMK Bakti Nusantara 666.</p>
-                    <p><a href="#" class="btn btn-primary">Learn more</a></p>
+                    <p><a href="/About" class="btn btn-primary">Learn more</a></p>
                 </div>
             </div>
             <div class="col-md">

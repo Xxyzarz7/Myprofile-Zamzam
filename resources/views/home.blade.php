@@ -1,4 +1,4 @@
-@extends('yield/layout')
+@extends('yield/user/layout')
 
 @section('body')
     {{-- Body Section --}}
